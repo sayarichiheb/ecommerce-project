@@ -8,10 +8,10 @@ class OrderItem extends Model
 {
     protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
+public function product()
+{
+    return $this->belongsTo(Product::class)->withTrashed();
+}
 
     public function order()
     {

@@ -106,10 +106,15 @@ public function update(Request $request, Product $product)
 
 public function destroy(Product $product)
 {
-    if ($product->user_id !== Auth::id()) {
+    if ($product->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
         abort(403, 'Action non autorisée.');
     }
     $product->delete();
     return redirect()->route('products.index')->with('success', 'Produit supprimé !');
+}
+
+public function resolveRouteBinding($value, $field = null)
+{
+    return $this->withTrashed()->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
 }
 }

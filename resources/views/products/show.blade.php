@@ -26,26 +26,50 @@
 <h4>Avis clients</h4>
 
 @auth
-<form method="POST" action="{{ route('reviews.store', $product) }}" class="mb-4">
-    @csrf
-    <div class="mb-2">
-        <label>Note (1-5)</label>
-        <input type="number" name="rating" min="1" max="5" class="form-control" style="width:100px">
-    </div>
-    <div class="mb-2">
-        <label>Commentaire</label>
-        <textarea name="comment" class="form-control" rows="3"></textarea>
-    </div>
-    <button class="btn btn-primary">Envoyer</button>
-</form>
+    @php
+        $alreadyReviewed = $reviews->where('user_id', Auth::id())->count() > 0;
+    @endphp
+
+    @if($product->user_id === Auth::id())
+        <div class="alert alert-warning">Vous ne pouvez pas noter votre propre produit.</div>
+    @elseif($alreadyReviewed)
+        <div class="alert alert-info">Vous avez déjà laissé un avis sur ce produit.</div>
+    @else
+        <form method="POST" action="{{ route('reviews.store', $product) }}" class="mb-4">
+            @csrf
+            <div class="mb-2">
+                <label>Note (1-5)</label>
+                <input type="number" name="rating" min="1" max="5" class="form-control" style="width:100px">
+            </div>
+            <div class="mb-2">
+                <label>Commentaire</label>
+                <textarea name="comment" class="form-control" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary">Envoyer</button>
+        </form>
+    @endif
 @endauth
 
 @forelse($reviews as $review)
     <div class="card mb-2">
-        <div class="card-body">
-            <strong>{{ $review->user->name }}</strong>
-            <span class="text-warning">⭐ {{ $review->rating }}/5</span>
-            <p>{{ $review->comment }}</p>
+        <div class="card-body d-flex justify-content-between align-items-start">
+            <div>
+                <strong>{{ $review->user->name }}</strong>
+                <span class="text-warning">⭐ {{ $review->rating }}/5</span>
+                <p>{{ $review->comment }}</p>
+            </div>
+            @auth
+                @if($review->user_id === Auth::id() || Auth::user()->role === 'admin')
+                    <form method="POST" action="{{ route('reviews.destroy', $review) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Supprimer cet avis ?')">
+                            🗑️
+                        </button>
+                    </form>
+                @endif
+            @endauth
         </div>
     </div>
 @empty

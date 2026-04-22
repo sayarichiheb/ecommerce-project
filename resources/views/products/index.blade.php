@@ -41,19 +41,23 @@
                     <p class="text-muted">{{ $product->category->name }}</p>
                     <p class="fw-bold">{{ $product->price }} TND</p>
                     <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary btn-sm">Voir</a>
-                   @auth
-                        <button class="btn btn-success btn-sm"
-                            onclick="document.getElementById('cart-form-{{ $product->id }}').submit()">
-                            🛒 Ajouter
-                        </button>
-                        <form id="cart-form-{{ $product->id }}"
-                              method="POST"
-                              action="{{ route('cart.add', $product) }}"
-                              style="display:none">
-                            @csrf
-                        </form>
+@auth
+    @if($product->user_id !== Auth::id())
+        <button class="btn btn-success btn-sm"
+            onclick="document.getElementById('cart-form-{{ $product->id }}').submit()">
+            🛒 Ajouter
+        </button>
+        <form id="cart-form-{{ $product->id }}"
+              method="POST"
+              action="{{ route('cart.add', $product) }}"
+              style="display:none">
+            @csrf
+        </form>
+    @else
+        <span class="badge bg-secondary">Votre produit</span>
+    @endif
 
-                        @if($product->user_id === Auth::id() || Auth::user()->role === 'admin')
+    @if($product->user_id === Auth::id() || Auth::user()->role === 'admin')
                          <a href="{{ route('products.edit', $product) }}" class="btn btn-warning btn-sm">✏️</a><form method="POST" action="{{ route('products.destroy', $product) }}" class="d-inline">
                             @csrf
                             @method('DELETE')

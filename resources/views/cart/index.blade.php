@@ -26,7 +26,7 @@
                     <td>
                         <form method="POST" action="{{ route('cart.update', $id) }}">
                             @csrf @method('PUT')
-                            <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="form-control" style="width:80px">
+                            <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="form-control" style="width:80px" onchange="if(this.value < 1) this.value = 1; this.closest('form').submit();">
                         </form>
                     </td>
                     <td>{{ $item['price'] * $item['quantity'] }} TND</td>
@@ -48,11 +48,5 @@
         <button class="btn btn-success">✅ Passer la commande</button>
     </form>
 @endif
-<script>
-    document.querySelectorAll('input[name="quantity"]').forEach(input => {
-        input.addEventListener('change', function() {
-            this.closest('form').submit();
-        });
-    });
-</script>
+
 @endsection

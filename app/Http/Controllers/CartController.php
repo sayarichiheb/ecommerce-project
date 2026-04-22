@@ -13,36 +13,53 @@ class CartController extends Controller
         return view('cart.index', compact('cart'));
     }
 
-    public function add(Request $request, Product $product)
-    {
-        $cart = session()->get('cart', []);
+public function add(Request $request, Product $product)
+{
+    $cart = session()->get('cart', []);
 
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
-        } else {
-            $cart[$product->id] = [
-                'title' => $product->title,
-                'price' => $product->price,
-                'image' => $product->image,
-                'quantity' => 1,
-            ];
+    $currentQty = isset($cart[$product->id]) ? $cart[$product->id]['quantity'] : 0;
+
+    if ($currentQty + 1 > $product->stock) {
+        return redirect()->back()->with('error', 'Stock insuffisant ! Stock disponible : ' . $product->stock);
+    }
+
+    if (isset($cart[$product->id])) {
+        $cart[$product->id]['quantity']++;
+    } else {
+        $cart[$product->id] = [
+            'title' => $product->title,
+            'price' => $product->price,
+            'image' => $product->image,
+            'quantity' => 1,
+        ];
+    }
+
+    session()->put('cart', $cart);
+    return redirect()->back()->with('success', 'Produit ajouté au panier !');
+}
+
+public function update(Request $request, $id)
+{
+    $cart = session()->get('cart', []);
+
+    if (isset($cart[$id])) {
+        $product = Product::find($id);
+
+        if ($request->quantity > $product->stock) {
+            return redirect()->route('cart.index')->with('error', 'Stock insuffisant ! Stock disponible : ' . $product->stock);
+        }
+
+if ($request->quantity <= 0) {
+    return redirect()->route('cart.index')->with('error', 'La quantité doit être au moins 1. Pour supprimer, utilisez le bouton Supprimer.');
+}else {
+            $cart[$id]['quantity'] = $request->quantity;
         }
 
         session()->put('cart', $cart);
-        return redirect()->back()->with('success', 'Produit ajouté au panier !');
     }
 
-    public function update(Request $request, $id)
-    {
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] = $request->quantity;
-            session()->put('cart', $cart);
-        }
-
-        return redirect()->route('cart.index')->with('success', 'Panier mis à jour !');
-    }
+    return redirect()->route('cart.index')->with('success', 'Panier mis à jour !');
+}
 
     public function remove($id)
     {
