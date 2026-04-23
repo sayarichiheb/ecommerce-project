@@ -38,7 +38,7 @@
         @foreach($recentOrders as $order)
         <tr>
             <td>{{ $order->id }}</td>
-            <td>{{ $order->user->name }}</td>
+            <td>{{ $order->user?->name ?? 'Utilisateur supprimé' }}</td>
             <td>{{ $order->total }} TND</td>
             <td>
                 <span class="badge bg-{{ $order->status=='validee' ? 'success' : ($order->status=='annulee' ? 'danger' : 'warning') }}">

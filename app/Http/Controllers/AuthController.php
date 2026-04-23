@@ -154,15 +154,22 @@ public function showProfile()
     return view('auth.profile', compact('user'));
 }
 
-    public function updateProfile(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
-        ]);
+public function updateProfile(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . Auth::id(),
+        'password' => 'nullable|min:6|confirmed',
+    ]);
 
-        Auth::user()->update($request->only('name', 'email'));
+    $data = $request->only('name', 'email');
 
-        return back()->with('success', 'Profil mis à jour !');
+    if ($request->filled('password')) {
+        $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
     }
+
+    Auth::user()->update($data);
+
+    return back()->with('success', 'Profil mis à jour !');
+}
 }

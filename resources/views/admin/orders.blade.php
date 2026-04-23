@@ -9,7 +9,7 @@
 @foreach($orders as $order)
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Commande #{{ $order->id }} — {{ $order->user->name }} — {{ $order->total }} TND</span>
+        <span>Commande #{{ $order->id }} – {{ $order->user?->name ?? 'Utilisateur supprimé' }} – {{ $order->total }} TND</span>
         <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="d-flex gap-2">
             @csrf @method('PUT')
             <select name="status" class="form-select form-select-sm" style="width:150px">
